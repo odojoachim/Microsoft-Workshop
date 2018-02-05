@@ -467,6 +467,49 @@ write.table(Pokemon, file = "Pokemon.tsv", sep = "\t") # e.g., tab delimiter
 
 ```{r Exercises 1}
 # 1. How many observations are there?
+
+# 2. Show the first 7 rows of the diamonds dataset
+
+# 3. show the structure of diamonds using str function
+
+# 4. How many rows is in the dataset
+
+# 5. what kind of variable is color
+
+# 6. Using summary function tell how many diamonds has ideal cut
+
+# 7. Extract data only for diamonds that cost more than $2401 and store as Expensive
+
+# 8. Using describe function inside psych tell what is mean, standard deviation and range of price for the diamonds.
+
+# 9. Find a range of carat for expensive diamonds using basic r
+
+# 10. Create a histogram using basic r for the carats using binwith 0.5
+
+# 11. Create a ggplot using ggplot2 library for the carats store them as carat
+
+# 12. Create histogram and add the binwidth the same as we used in basic r
+
+# 13. colour the histogram mapping cut
+
+# 14. set up border for different types in the histogram
+
+# 15. Add the main title to the graph
+
+# 16. Create a density plot using basic r for the price
+
+# 17. Create a ggplot using ggplot2 library for the price and store it as price
+
+# 18. Create density plot
+
+# 19. Colour the density plot for different cuts
+
+# 20. Use position stack to see better density distribution for different cuts
+
+```
+
+```{r Exercises 1}
+# 1. How many observations are there?
 dim(diamonds)
 # 2. Show the first 7 rows of the diamonds dataset
 head(diamonds, n = 7)
@@ -505,7 +548,7 @@ Price <- ggplot(data = Expensive, aes(x=price))
 # 18. Create density plot
 Price + geom_density() # create density plot
 # 19. Colour the density plot for different cuts
-Price + geom_density(aes(fill = cut)) # create density plot for different Region
+Price + geom_density(aes(fill = cut)) # create density plot for different cuts
 # 20. Use position stack to see better density distribution for different cuts
 Price + geom_density(aes(fill = cut), position = 'stack')
 ```
