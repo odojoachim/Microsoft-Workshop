@@ -1,0 +1,513 @@
+---
+title: "Introduction 2 Data Analytics with Pokemon"
+author: "Marta Fajlhauer"
+date: "3 February 2018"
+output:
+  pdf_document: default
+  word_document: default
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Before we begin
+
+### Advantages of R:
+* It is free to use
+
+* It is open source: it encourages open collaboration. Eveyrone with sufficient skills can create a package to develop furter R. 
+
+* It has a huge library of packages available to run every form of analysis. 
+
+* R is flexible
+
+* R has a nice visualisation graphics that we will see later in the course.
+
+### Challenges of using R
+
+You need to learn programming! ;p It is also fun
+
+### Packages
+
+R has many additional packages 
+
+To use a package it needs to be installed. 
+
+You only need to install a package once.
+
+To use a package, you need to load the package each time you use R.
+
+
+### Installation
+
+Option 1. Use the install.packages function.
+
+Note that some packages rely on other packages.
+
+depencies = TRUE ensures that dependencies are also installed.
+
+```{r install packages, eval=FALSE}
+install.packages("dplyr", dependencies = T)
+install.packages("VIM", dependencies = T)
+install.packages("googleVis", dependencies = T)
+install.packages("ggplot2", dependencies = T)
+install.packages("scales", dependencies = T)
+install.packages("ggridges", dependencies = T)
+```
+
+### Understanding directories
+```{r directories}
+# R has a working directory.
+# This is important when loading and saving files to disk
+getwd() # show the current working directory
+setwd("C:/Users/fajlh/Documents/USB stick/statistics/Microsoft")
+```
+
+you can use setwd in R studio easily. Go to session -> set working directory
+In the Files you can see all folders available in your working directory
+
+Tips: 
+
+* Try to avoid spaces in file names (use hyphen or underscore instead)
+
+* If you do use spaces, then you'll need to escape the space with a slash  (e.g., ("my\ documents")
+
+* Use backslash as the directory separator 
+
+* Store all relevant files for a project within the project working directory
+
+```{r loading libraries, message=FALSE, comment=FALSE, warning=FALSE}
+library(dplyr)
+library(VIM)
+library(googleVis)
+library(ggplot2)
+library(scales)
+library(ggridges)
+library(plotrix)
+library(plotly)
+library(psych)
+```
+
+# Getting the dataset
+
+### Short information about data set
+
+```{r Download data set, message=FALSE, comment=FALSE, warning=FALSE}
+library(readr)
+Pokemon <- read_csv("pokemon_alopez247.csv")
+```
+
+The dataset comes from https://www.kaggle.com/alopez247/pokemon/data. 
+Metadata:
+* Number. Pokémon ID in the Pokédex.
+
+* Name. Name of the Pokémon.
+
+* Total. Sum of all the base stats (Health Points, Attack, Defense, Special Attack, Special Defense, and Speed).
+
+* HP. Base Health Points.
+
+* Attack. Base Attack.
+
+* Defense. Base Defense.
+
+* Sp_Atk. Base Special Attack.
+
+* Sp_Def. Base Special Defense.
+
+* Speed. Base Speed.
+
+* Generation. Number of the generation when the Pokémon was introduced.
+
+* isLegendary. Boolean that indicates whether the Pokémon is Legendary or not.
+
+* Color. Color of the Pokémon according to the Pokédex.
+
+* hasGender. Boolean that indicates if the Pokémon can be classified as female or male.
+
+* Pr_male. In case the Pokémon has Gender, the probability of its being male. The probability of being female is, of course, 1 minus this value.
+
+* Egg_Group_1. Egg Group of the Pokémon. 
+
+* Egg_Group_2. Second Egg Group of the Pokémon, in case it has two.
+
+* hasMegaEvolution. Boolean that indicates whether the Pokémon is able to 
+
+* Mega-evolve or not.
+
+* Height_m. Height of the Pokémon, in meters.
+
+* Weight_kg. Weight of the Pokémon, in kilograms.
+
+* Catch_Rate. Catch Rate.
+
+* Body_Style. Body Style of the Pokémon according to the Pokédex.
+
+### Type of variables.
+
+There are different ypes of variables and they are important in selection of visualisation technique and decision of correct statistical modelling performed on the dataset. 
+
+```{r type of variables}
+typeof(Pokemon$Name) # character variable
+typeof(Pokemon$Total) # numerical variable
+```
+
+### Data Frames:
+* Data frames are the standard data strucure used for storing data. If you have used other software (e.g., SPSS, Excel, etc.), this is what you may think of as a "dataset".
+* Columns can be of different data types (e.g., character, numeric, logical, etc.)
+
+### Tip: 
+* Some functions work with matrices, some work with data.frames, and some work with both.
+* If you are wanting to store data like you might store in a database, then you'll generaly want a data.frame.
+* If you are dealing with a mathematical object that you you want to perform a mathematical operation on, then you generally want a matrix (e.g., correlation matrix, covariance matrix, distance matrix in MDS, matrices used for matrix algebra).
+
+### Extracting observations (i.e., rows) and variables (i.e., columns).
+There are similarities to matrices and lists
+Select observations
+```{r extracting observations}
+Pokemon[1:5, ] # by row number
+Pokemon[c(5,4,3,2,1), ] # re-order
+Pokemon[Pokemon$isLegendary == "True", ] # by logical vector
+Pokemon[c("10", "56"), ] # by rownames
+
+# Select variables 
+Pokemon[, c(1,2)] # by position like a matrix
+Pokemon[c(1,2)] # by position like a list
+Pokemon[ ,c("Name", "Type_1")] # by name like a matrix
+Pokemon[c("Name", "Type_1")] # by name like a list
+```
+
+```{r, eval=FALSE}
+Pokemon$Total # by name to get a single variable
+```
+
+### Names
+```{r names}
+names(Pokemon) # get variable names
+colnames(Pokemon) # but this also works
+```
+
+```{r, eval=FALSE}
+rownames(Pokemon) # rows can also have names
+```
+#### Tip: 
+Avoid row names. Add another variable to the data.frame to store this information.
+
+
+### Examine first few rows
+```{r looking at the data}
+head(Pokemon) # first 6 rows
+head(Pokemon, n = 10) # first 7 rows
+tail(Pokemon) # last few rows
+View(Pokemon) # Rstudio function to open data in viewer or click on the icon in the Environment pane
+
+# How many rows and columns?
+dim(Pokemon) # rows and column counts
+nrow(Pokemon) # row count
+ncol(Pokemon) # column count
+```
+
+### Basics statistics on dataset
+
+
+```{r Basics statistics}
+str(Pokemon)
+summary(Pokemon)
+describe(CrimeData$PctBornSameState)
+```
+
+Function str in Basics R shows us structure of the dataset. We see that there are 23 variables and 721 observations. There is 10 character features and rest numerical. Summary statistics shows us 5 point statistics for numerical features. We can nicely visualise missing numbers by:
+
+```{r missing numbers visualisation}
+aggr_plot <- aggr(Pokemon, col=c('navyblue','red'), numbers=TRUE, sortVars=TRUE, labels=names(data), cex.axis=.5, gap=3, ylab=c("Histogram of missing data","Pattern"))
+```
+
+As our main concern is not to run advanced statistical analyses but we want to explore R we will simply remove the variables with missing numbers. 
+
+```{r removing variables with NA}
+myvars <- names(Pokemon) %in% c("Egg_Group_2", "Type_2", "Pr_Male")
+Pokemon <- Pokemon[!myvars]
+```
+
+# Exploratory Data Analysis so let's do a lot of Nice, Colourful Graphs. 
+
+### Histogram: 
+A basic histogram bins a variable into fixed width buckets and returns the number of data points that falls into each bucket. 
+The primary disadvantge of histograms is that you must decide ahead of time how wide the buckets are. 
+
+```{r histogram}
+hist(Pokemon$Total, binw = 20) # histogram
+p3 <- ggplot(data=Pokemon, aes(x=Total))
+range(Pokemon$Total) # tip: always check range of the variable to estimate binwidth
+p3 + geom_histogram(binwidth =20) # set up the binwidth
+p3 + geom_histogram(binwidth =20, aes(fill = Type_1)) # map second variable as a colour
+p3 + geom_histogram(binwidth =20, aes(fill = Type_1), colour = 'Black') # set up border for different types in the histogram
+r <- p3 + geom_histogram(binwidth =20, aes(fill = Type_1), colour = 'Black')
+r + 
+  xlab('Type') + # add the x axis title
+  ylab('Total score for Pokemons') + # add the y-axis title
+  ggtitle('Total score for different types') + # add the title
+  theme(axis.title.x = element_text(colour = 'Blue', size = 20), # change colour and size of x-axis title
+        axis.title.y = element_text(colour = 'Red', size = 20), # change colour and size of y-axis title
+        legend.title = element_text(size = 20), # change the size of title in the legend
+        legend.text = element_text(size=10), # change the size of content in the legend
+        legend.position = c(1,1), # according to: 0,0 = origin, 0,1 = on the y-axis where x=0, 1,0 = on the x-axis where y=0
+        legend.justification = c(1,1),
+        plot.title = element_text(colour = 'DarkGreen', size = 30)) # which corner of the text box you want to put in which corner of the grid box.
+```
+
+### distribution
+You can think of a 'density plot' as a "continuous histogram" of a variable, except the area under the density plot is equal to 1. 
+You should use a log scale to better visualise data that is heavily skewed.
+
+```{r density}
+plot(density(Pokemon$HP)) # density plot
+p3 <- ggplot(data=Pokemon, aes(x=HP))
+p3 + geom_density() # create density plot
+p3 + geom_density(aes(fill = Type_1)) # create density plot for different types
+p3 + geom_density(aes(fill = Type_1), position = 'stack') # so you can see better density distribution for different types
+```
+
+We can also find that legendary pokemons have higher total skills than non-legendary and taht the legendary ones were: water, steel, rock, psychic, fire, electric, dragon. 
+```{r}
+ggplot(Pokemon, aes(x = Total, y = Type_1, fill = isLegendary)) +
+  geom_density_ridges() +
+  theme_ridges() + 
+  theme(legend.position = "none")
+```
+
+### Box plot
+A bar chart is a histogram for discrete data. 
+
+```{r boxplot}
+boxplot(Pokemon$Speed) # box plot
+boxplot(Pokemon$Speed~ Pokemon$Type_1) # box plot by group
+p5 <- ggplot(data = Pokemon, aes(x = Type_1, y=Speed, colour=Type_1))
+p5 + geom_boxplot()
+p5 + geom_boxplot(size = 1.1) # increase size of the borders
+p5 + geom_boxplot(size = 1.1) + geom_point() # too pretty to be good
+p5 + geom_boxplot(size = 1.3) + geom_jitter() # it's just randomly thrown points helping you too see the data better
+p5 + geom_jitter() + geom_boxplot(size = 1.3, alpha = 0.5) # boxplot on top and set up transparency
+```
+
+```{r plotly}
+p <- plot_ly(Pokemon, y = ~Speed, color= ~Type_1, type = "box")
+p
+```
+### Violin plot
+
+A way of visualisation of distribution of numerical variable that allows a deeper understanding of the density as density plot is drawn on sides of the violin
+
+```{r violin plot}
+ggplot(Pokemon, aes(factor(Type_1), Attack)) + 
+  geom_violin(aes(fill = Type_1))
+```
+
+### Bar plot
+These total base stats include average health points
+
+```{r circular barplot}
+ggplot(Pokemon, aes(x = Type_1, y = HP ,fill = Type_1)) + 
+geom_bar(width = 0.85, stat="identity") +
+# To use a polar plot and not a basic barplot
+coord_polar(theta = "y") +
+#Remove useless labels of axis
+xlab("") + ylab("") +
+#Increase ylim to avoid having a complete circle
+#Add group labels close to the bars :
+geom_text(data = Pokemon, hjust = 1, size = 3, aes(x = Type_1, y = 0, label = Type_1)) +
+#Remove useless legend, y axis ticks and y axis text
+theme(legend.position = "none" , axis.text.y = element_blank() , axis.ticks = element_blank())
+```
+
+
+### Line plots
+Works best when the relationship between two variables is relatively clean: each x value has a unique y value. When the data is not so cleanle related you'll want to use scatterplot instead
+
+### scatterplot
+
+```{r scatterplot}
+par(mfrow=c(1,1)) # create a layout of graphic wondow, useful if you want to put more than one graph in one graphic window 
+plot(Pokemon$Total, Pokemon$Attack) # plot scatterplot for the variables
+plot(Pokemon$Total) # plot one variable only
+library(psych)
+pairs.panels(Pokemon[,c("Total", "HP", "Attack", "Defense", 'Speed')], 
+             density = TRUE,
+             ellipses = T, 
+             lm = T, 
+             method = 'spearman',
+             rug = F,
+             smoother = F)
+```
+
+```{r bubble plot, results='asis', tidy=FALSE}
+Bubble <- gvisBubbleChart(Pokemon, idvar="Type_1", 
+                          xvar="HP", yvar="Attack",
+                          colorvar="Generation", sizevar="Total", 
+                          options = list(
+                            width=2500,
+                            height=1500
+                          ))
+plot(Bubble)
+```
+
+```{r plotly}
+p <- plot_ly(
+  Pokemon, x = ~HP, y = ~Attack,
+  # Hover text:
+  text = ~paste("Attack: ", Attack, '<br>Generation:', Generation),
+  color = ~Generation, size = ~HP
+)
+p
+```
+### categorical variable 
+
+```{r categorical variable}
+# categorical variables
+plot(Pokemon$Generation) # categorical variable will be presented in bar chart
+plot(prop.table(table(Pokemon$Generation))) #p.m.f. of categorical variable
+```
+
+### Pie chart
+There are different kind of Pokemons
+```{r circular barplot}
+ggplot(data = Pokemon, aes(x=Type_1)) + # Plot bar chart as before
+  geom_bar() +
+  coord_flip() + # Flip the x and y axis
+  theme(axis.text.y = element_text(size=rel(0.8))) #reduce the size of the y-axis tick labels 
+TypeSum <- table(Pokemon$Type_1) # aggregate the data by state of residence
+TypeOf <- as.data.frame(TypeSum) # convert to data frame
+colnames(TypeOf) <- c('Type', 'count') # change the column names
+summary(TypeOf) # default ordering is alphabetical
+TypeOf <- transform(TypeOf, Type = reorder(Type, count)) # reorder
+summary(TypeOf) # The region is now count ordered
+ggplot(TypeOf) +
+  geom_bar(aes(x=Type, y=count), 
+           stat = 'identity',
+           fill = 'blue') +
+  coord_flip() +
+  theme(axis.text.y = element_text(size = rel(0.8)))
+```
+
+```{r Pie Chart, warning=FALSE}
+AttackSkills <- Pokemon[,c('Type_1' ,'Attack')]
+AttackSkills <- aggregate(AttackSkills, by = list(Type = AttackSkills$Type_1), FUN = 'mean')
+AttackSkills <- AttackSkills[,c(1,3)]
+AttackSkills <- AttackSkills[order(AttackSkills$Attack),]
+slices <- AttackSkills$Attack 
+lbls <- AttackSkills$Type
+pie3D(slices,labels=lbls,explode=0.1,
+  	main="Pie Chart of Types")
+Pie <- gvisPieChart(AttackSkills, options = list(
+  width=2500,
+  height=1500
+  ))
+plot(Pie)
+```
+
+All pokemons have a total sum of all the base stats (Health Points, Attack, Defense, Special Attack, Special Defense, and Speed) as a ranking. Those with the higest ranking are the strongest ones.
+```{r ranking of total skills, warning=FALSE, eval=FALSE}
+TotalSkills <- Pokemon[,c('Type_1' ,'Total')]
+TotalSkills <- aggregate(TotalSkills, by = list(Type = TotalSkills$Type_1), FUN = 'mean')
+TotalSkills <- TotalSkills[,c(1,3)]
+TotalSkills <- TotalSkills[order(TotalSkills$Total),]
+Gauge <-  gvisGauge(TotalSkills, 
+                    options=list(min=365, max=501, 
+                                 greenFrom=457,
+                                 greenTo=501, 
+                                 yellowFrom=411, 
+                                 yellowTo=457,
+                                 redFrom=365, 
+                                 redTo=411,
+                                 width = 1000,
+                                 height = 900))
+plot(Gauge)
+```
+
+
+
+```{r defense skills map, warning=FALSE}
+library(treemap)
+treemap(Pokemon, #Your data frame object
+        index=c("Type_1","Name"),  #A list of your categorical variables
+        vSize = "Defense",  #This is your quantitative variable
+        type="index", #Type sets the organization and color scheme of your treemap
+        palette = "Reds",  #Select your color palette from the RColorBrewer presets or make your own.
+        title="Defense skills of Pokemon", #Customize your title
+        fontsize.title = 14) #Change the font size of the title)
+```
+
+```{r corrolelogram}
+library(corrgram)
+Num <- Pokemon[,c("Total", "HP", "Attack", "Defense", "Sp_Atk", "Sp_Def","Speed")]
+corrgram(Num, upper.panel=panel.pie, diag.panel = panel.density, lower.panel = panel.cor,main="Pokemon attributes",
+         col.regions = colorRampPalette(c("yellow", "blue", "red", "violet")))
+```
+# Exporting data 
+```{r exporting data}
+
+# Interal R format
+# Good option if you need to re-open data in R
+save(Pokemon, file="Pokemon.rdata")
+
+
+# csv
+# Good option if you need to get data into other software
+# This should open in almost all other software (e.g. Excel, SPSS, etc.)
+write.csv(Pokemon, file = "Pokemon.csv", row.names = FALSE) # exclude row.names
+
+# If you need more flexibility in terms of delimiters, etc.
+write.table(Pokemon, file = "Pokemon.tsv", sep = "\t") # e.g., tab delimiter
+```
+
+# Questions
+
+```{r Exercises 1}
+# 1. How many observations are there?
+dim(diamonds)
+# 2. Show the first 7 rows of the diamonds dataset
+head(diamonds, n = 7)
+# 3. show the structure of diamonds using str function
+str(diamonds)
+# 4. How many rows is in the dataset
+nrow(diamonds)
+# 5. what kind of variable is color
+typeof(diamonds$color) 
+# 6. Using summary function tell how many diamonds has ideal cut
+summary(diamonds$cut)
+# 7. Extract data only for diamonds that cost more than $2401 and store as Expensive
+Expensive <- diamonds[diamonds$price > 2401,]
+# 8. Using describe function inside psych tell what is mean, standard deviation and range of price for the diamonds.
+describe(Expensive$price)
+# 9. Find a range of carat for expensive diamonds using basic r
+range(Expensive$carat)
+# 10. Create a histogram using basic r for the carats using binwith 0.5
+hist(Expensive$carat, binw = 0.5)
+# 11. Create a ggplot using ggplot2 library for the carats store them as carat
+carat <- ggplot(data = Expensive, aes(x=carat))
+carat
+# 12. Create histogram and add the binwidth the same as we used in basic r
+carat + geom_histogram(binwidth = 0.5)
+# 13. colour the histogram mapping cut
+carat + geom_histogram(binwidth = 0.5, aes(fill = cut))
+# 14. set up border for different types in the histogram
+carat + geom_histogram(binwidth = 0.5, aes(fill = cut), colour = 'Black')
+# 15. Add the main title to the graph
+carat + geom_histogram(binwidth = 0.5, aes(fill = cut), colour = 'Black') +
+  ggtitle('Carats of expensive diamonds')
+# 16. Create a density plot using basic r for the price
+plot(density(Expensive$price))
+# 17. Create a ggplot using ggplot2 library for the price and store it as price
+Price <- ggplot(data = Expensive, aes(x=price))
+# 18. Create density plot
+Price + geom_density() # create density plot
+# 19. Colour the density plot for different cuts
+Price + geom_density(aes(fill = cut)) # create density plot for different Region
+# 20. Use position stack to see better density distribution for different cuts
+Price + geom_density(aes(fill = cut), position = 'stack')
+```
+
+
