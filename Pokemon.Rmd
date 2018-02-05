@@ -466,6 +466,8 @@ write.table(Pokemon, file = "Pokemon.tsv", sep = "\t") # e.g., tab delimiter
 # Questions
 
 ```{r Exercises 1}
+# To answer on these questions use dataset diamonds in the ggplot2 package
+library(ggplot2)
 # 1. How many observations are there?
 
 # 2. Show the first 7 rows of the diamonds dataset
