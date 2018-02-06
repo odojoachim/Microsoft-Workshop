@@ -80,15 +80,17 @@ Tips:
 * Store all relevant files for a project within the project working directory
 
 ```{r loading libraries, message=FALSE, comment=FALSE, warning=FALSE}
-library(dplyr)
+library(dplyr) # main package for data shape and cleaning
 library(VIM)
-library(googleVis)
-library(ggplot2)
-library(scales)
-library(ggridges)
+library(googleVis) # nice visual package
+library(ggplot2) # main visual package
+library(scales) # improve ggplot
+library(ggridges) 
 library(plotrix)
-library(plotly)
-library(psych)
+library(plotly) # Nice visual graphics
+library(psych) # statsitics package
+library(corrgram) # corrolelogram package
+library(treemap)
 ```
 
 # Getting the dataset
@@ -146,6 +148,69 @@ Metadata:
 
 * Body_Style. Body Style of the Pokémon according to the Pokédex.
 
+# Basic Arithmetic and Logical Operations
+```{r basic_multiplication}
+# You can use R like a calculator
+1 + 5 # addition
+10 - 7 # subtraction
+10 * 10 # multiplcation
+90 / 9 # division
+11 ^ 2 # exponentiation
+
+abs(-10) # absolute value
+ceiling(2.75) # round up to next integer
+floor(3.25) # round down to next integer
+sqrt(100) # square roots
+exp(2) # exponents
+pi # mathematical constant pi
+exp(1) # mathematical constant e
+log(100) # natural logs (i.e., base e)
+log(100, base= 10) # base 10 logs
+
+
+# Use parentheses to clarify order of operations
+(1 + 1 ) * 2
+1 + (1 * 2)
+
+# You can test for equality
+# TRUE and FALSE are keywords
+# T and F are synonyms
+TRUE
+FALSE
+1 == 2 # Equality (Return TRUE if equal)
+1 != 2 # Inequality (Return FALSE if unequal)
+10 > 9 # Greater than
+9 < 10 # Less than
+10 <= 10 # Less than or equal
+2 %in% c(1, 2 ,3) # is the number in the vector
+!(5>1)
+result <- 4<5
+result2 <- !(5>1) #is not (TRUE)
+result | result2 # result 1 or result 2 (because one of them is TRUE)
+result & result2 # result 1 and result 2 (because one is not true)
+isTRUE(result2)
+
+# TRUE and FALSE coerces to 1 and 0 respectively
+as.numeric(TRUE)
+as.numeric(FALSE)
+
+# Logical converting to 0, 1 is useful
+x <- c(2, 5 ,7 ,10, 15)
+x > 5
+sum(x > 5)  # sum of a 0-1 variable is a count
+mean(x > 5) # mean of a 0-1 variable is a proportion
+
+```
+
+# Basic language features
+Assignment:
+To assign values to a variable either use "<-" or "="
+"<-" is the more common convention R
+```{r basic language features, error = TRUE}
+x <- 1 + 1
+x
+```
+
 ### Type of variables.
 
 There are different ypes of variables and they are important in selection of visualisation technique and decision of correct statistical modelling performed on the dataset. 
@@ -155,8 +220,64 @@ typeof(Pokemon$Name) # character variable
 typeof(Pokemon$Total) # numerical variable
 ```
 
+### Variable name rules
+1. Variable names generally
++ Start with a letter (lower or uppercase)
++ Followed by letters, numbers, underscore (_), or period (.)
++ No spaces
+
+These do not work
+```{r, error=TRUE}
+my variable <- 1234
+1234variable <- 1234
+1234 <- 1234
+```
+
+This works
+```{r, error=TRUE}
+myvariable <- 1234
+my_variable <- 1234
+my_variable <- 1234
+myvariable123 <- 1234
+myVariable <- 1234
+my.variable <- 1234
+```
+R has many naming conventions
+As a matter of preference, style, and convenience, I prefer:
+1. Short but descriptive names
+
+* Less than 8 characters for names of lists and data.frames
+
+* Less than 15 characters for variables names in data.frames
+
+2. Use underscore to separate words within a variable name
+
+3. Avoid upper case letters
+
+
+Names starting with a period are hidden
+```{r, error=TRUE}
+.myvariable <- 1234
+ls()
+ls(all.names = TRUE)
+```
+
+R is case sensitive
+```{r, error=TRUE}
+test <- "lower case"
+TEST <- "upper case"
+TEST 
+test # The original value was not lost
+     # because test is different to TEST
+Test # This variable does not exist
+
+Test <- "title case"
+Test
+```
+
 ### Data Frames:
-* Data frames are the standard data strucure used for storing data. If you have used other software (e.g., SPSS, Excel, etc.), this is what you may think of as a "dataset".
+* Data frames are the standard data strucure used for storing data. 
+
 * Columns can be of different data types (e.g., character, numeric, logical, etc.)
 
 ### Tip: 
@@ -238,15 +359,32 @@ Pokemon <- Pokemon[!myvars]
 A basic histogram bins a variable into fixed width buckets and returns the number of data points that falls into each bucket. 
 The primary disadvantge of histograms is that you must decide ahead of time how wide the buckets are. 
 
-```{r histogram}
+```{r histogram basic}
 hist(Pokemon$Total, binw = 20) # histogram
+```
+
+It is so easy to do histogram using ggplot2 and the package allows to do much nicer and more colourful graphs as we will see. 
+```{r basic gghist}
 p3 <- ggplot(data=Pokemon, aes(x=Total))
 range(Pokemon$Total) # tip: always check range of the variable to estimate binwidth
 p3 + geom_histogram(binwidth =20) # set up the binwidth
+
+```
+
+We can colour the histogram using another colour as second variable.  
+```{r colour histogram in depends of another variable}
 p3 + geom_histogram(binwidth =20, aes(fill = Type_1)) # map second variable as a colour
-p3 + geom_histogram(binwidth =20, aes(fill = Type_1), colour = 'Black') # set up border for different types in the histogram
-r <- p3 + geom_histogram(binwidth =20, aes(fill = Type_1), colour = 'Black')
-r + 
+```
+
+We can add the black line to differentiate easier colours of the variables. 
+```{r adding black line}
+p3 <- p3 + geom_histogram(binwidth =20, aes(fill = Type_1), colour = 'Black') # set up border for different types in the histogram
+p3
+```
+
+Having graph ready we would like to add labels so we can include this into our project. 
+```{r adding text}
+p3 + 
   xlab('Type') + # add the x axis title
   ylab('Total score for Pokemons') + # add the y-axis title
   ggtitle('Total score for different types') + # add the title
@@ -263,47 +401,78 @@ r +
 You can think of a 'density plot' as a "continuous histogram" of a variable, except the area under the density plot is equal to 1. 
 You should use a log scale to better visualise data that is heavily skewed.
 
-```{r density}
+```{r basic density}
 plot(density(Pokemon$HP)) # density plot
-p3 <- ggplot(data=Pokemon, aes(x=HP))
-p3 + geom_density() # create density plot
-p3 + geom_density(aes(fill = Type_1)) # create density plot for different types
-p3 + geom_density(aes(fill = Type_1), position = 'stack') # so you can see better density distribution for different types
 ```
 
-We can also find that legendary pokemons have higher total skills than non-legendary and taht the legendary ones were: water, steel, rock, psychic, fire, electric, dragon. 
+Again ggplot2 allows us to produce much nicer graph very quickly. 
+```{r basic ggdist}
+p3 <- ggplot(data=Pokemon, aes(x=HP))
+p3 + geom_density() # create density plot
+```
+
+We can see how densities will differ according to what groups it belongs to. 
+```{r imroving density}
+p3 + geom_density(aes(fill = Type_1)) # create density plot for different types
+```
+
+Adding labels and black line allows us to read the graph much easier. 
+```{r}
+p3 <- p3 + geom_density(aes(fill = Type_1), position = 'stack') # so you can see better density distribution for different types
+p3
+p3 + 
+  xlab('Type') + # add the x axis title
+  ylab('Density of scores') + # add the y-axis title
+  ggtitle('Density plots for different types') + # add the title
+  theme(axis.title.x = element_text(colour = 'Blue', size = 20), # change colour and size of x-axis title
+        axis.title.y = element_text(colour = 'Red', size = 20), # change colour and size of y-axis title
+        legend.title = element_text(size = 20), # change the size of title in the legend
+        legend.text = element_text(size=10), # change the size of content in the legend
+        legend.position = c(1,1), # according to: 0,0 = origin, 0,1 = on the y-axis where x=0, 1,0 = on the x-axis where y=0
+        legend.justification = c(1,1),
+        plot.title = element_text(colour = 'DarkGreen', size = 30)) # which corner of the text box you want to put in which corner of the grid box.
+```
+
+We can also find that legendary pokemons have higher total skills than non-legendary and that the legendary ones were: water, steel, rock, psychic, fire, electric, dragon. 
 ```{r}
 ggplot(Pokemon, aes(x = Total, y = Type_1, fill = isLegendary)) +
   geom_density_ridges() +
   theme_ridges() + 
-  theme(legend.position = "none")
+  theme(legend.position = c(-0.2,-0.1))
 ```
 
 ### Box plot
 A bar chart is a histogram for discrete data. 
-
-```{r boxplot}
+The simplest one we can create using basic R
+```{r basic boxplot}
 boxplot(Pokemon$Speed) # box plot
+```
+
+We can check how distribution vary according to group.
+```{r basic boxplot by group}
 boxplot(Pokemon$Speed~ Pokemon$Type_1) # box plot by group
+```
+ Again we would prefer ggplot2 instead of base R
+```{r basic ggbox}
 p5 <- ggplot(data = Pokemon, aes(x = Type_1, y=Speed, colour=Type_1))
 p5 + geom_boxplot()
-p5 + geom_boxplot(size = 1.1) # increase size of the borders
+```
+
+We can improve the boxplots adding points for the dataset
+```{r improving ggbox}
 p5 + geom_boxplot(size = 1.1) + geom_point() # too pretty to be good
+```
+
+But this is too nice to be good so we need to jiter this a little. 
+```{r last touch}
 p5 + geom_boxplot(size = 1.3) + geom_jitter() # it's just randomly thrown points helping you too see the data better
 p5 + geom_jitter() + geom_boxplot(size = 1.3, alpha = 0.5) # boxplot on top and set up transparency
 ```
 
+However my favourite one would be using plotly. 
 ```{r plotly}
 p <- plot_ly(Pokemon, y = ~Speed, color= ~Type_1, type = "box")
 p
-```
-### Violin plot
-
-A way of visualisation of distribution of numerical variable that allows a deeper understanding of the density as density plot is drawn on sides of the violin
-
-```{r violin plot}
-ggplot(Pokemon, aes(factor(Type_1), Attack)) + 
-  geom_violin(aes(fill = Type_1))
 ```
 
 ### Bar plot
@@ -329,6 +498,8 @@ Works best when the relationship between two variables is relatively clean: each
 
 ### scatterplot
 
+Scatterplots allows us to see relationship between features in the dataset. If one increases is the other one increasing/decreasing?
+
 ```{r scatterplot}
 par(mfrow=c(1,1)) # create a layout of graphic wondow, useful if you want to put more than one graph in one graphic window 
 plot(Pokemon$Total, Pokemon$Attack) # plot scatterplot for the variables
@@ -343,6 +514,7 @@ pairs.panels(Pokemon[,c("Total", "HP", "Attack", "Defense", 'Speed')],
              smoother = F)
 ```
 
+We can produce bubble plot where ssize of the bubble depends on one variable, in this case total score, and we plot relationship between HP and Attack. 
 ```{r bubble plot, results='asis', tidy=FALSE}
 Bubble <- gvisBubbleChart(Pokemon, idvar="Type_1", 
                           xvar="HP", yvar="Attack",
@@ -354,6 +526,7 @@ Bubble <- gvisBubbleChart(Pokemon, idvar="Type_1",
 plot(Bubble)
 ```
 
+Plotly produces nice plot as well. 
 ```{r plotly}
 p <- plot_ly(
   Pokemon, x = ~HP, y = ~Attack,
@@ -363,21 +536,18 @@ p <- plot_ly(
 )
 p
 ```
-### categorical variable 
 
-```{r categorical variable}
-# categorical variables
-plot(Pokemon$Generation) # categorical variable will be presented in bar chart
-plot(prop.table(table(Pokemon$Generation))) #p.m.f. of categorical variable
-```
+### Bar chart 
 
-### Pie chart
-There are different kind of Pokemons
-```{r circular barplot}
+
+```{r barplot horizontal }
 ggplot(data = Pokemon, aes(x=Type_1)) + # Plot bar chart as before
   geom_bar() +
   coord_flip() + # Flip the x and y axis
   theme(axis.text.y = element_text(size=rel(0.8))) #reduce the size of the y-axis tick labels 
+```
+
+```{r improved}
 TypeSum <- table(Pokemon$Type_1) # aggregate the data by state of residence
 TypeOf <- as.data.frame(TypeSum) # convert to data frame
 colnames(TypeOf) <- c('Type', 'count') # change the column names
@@ -392,6 +562,7 @@ ggplot(TypeOf) +
   theme(axis.text.y = element_text(size = rel(0.8)))
 ```
 
+### Pie chart
 ```{r Pie Chart, warning=FALSE}
 AttackSkills <- Pokemon[,c('Type_1' ,'Attack')]
 AttackSkills <- aggregate(AttackSkills, by = list(Type = AttackSkills$Type_1), FUN = 'mean')
@@ -401,6 +572,8 @@ slices <- AttackSkills$Attack
 lbls <- AttackSkills$Type
 pie3D(slices,labels=lbls,explode=0.1,
   	main="Pie Chart of Types")
+```
+```{r PieVis}
 Pie <- gvisPieChart(AttackSkills, options = list(
   width=2500,
   height=1500
