@@ -93,6 +93,70 @@ library(corrgram) # corrolelogram package
 library(treemap)
 ```
 
+
+### Basic Arithmetic and Logical Operations
+```{r basic_multiplication}
+# You can use R like a calculator
+1 + 5 # addition
+10 - 7 # subtraction
+10 * 10 # multiplcation
+90 / 9 # division
+11 ^ 2 # exponentiation
+
+abs(-10) # absolute value
+ceiling(2.75) # round up to next integer
+floor(3.25) # round down to next integer
+sqrt(100) # square roots
+exp(2) # exponents
+pi # mathematical constant pi
+exp(1) # mathematical constant e
+log(100) # natural logs (i.e., base e)
+log(100, base= 10) # base 10 logs
+
+
+# Use parentheses to clarify order of operations
+(1 + 1 ) * 2
+1 + (1 * 2)
+
+# You can test for equality
+# TRUE and FALSE are keywords
+# T and F are synonyms
+TRUE
+FALSE
+1 == 2 # Equality (Return TRUE if equal)
+1 != 2 # Inequality (Return FALSE if unequal)
+10 > 9 # Greater than
+9 < 10 # Less than
+10 <= 10 # Less than or equal
+2 %in% c(1, 2 ,3) # is the number in the vector
+!(5>1)
+result <- 4<5
+result2 <- !(5>1) #is not (TRUE)
+result | result2 # result 1 or result 2 (because one of them is TRUE)
+result & result2 # result 1 and result 2 (because one is not true)
+isTRUE(result2)
+
+# TRUE and FALSE coerces to 1 and 0 respectively
+as.numeric(TRUE)
+as.numeric(FALSE)
+
+# Logical converting to 0, 1 is useful
+x <- c(2, 5 ,7 ,10, 15)
+x > 5
+sum(x > 5)  # sum of a 0-1 variable is a count
+mean(x > 5) # mean of a 0-1 variable is a proportion
+
+```
+
+### Basic language features
+Assignment:
+To assign values to a variable either use "<-" or "="
+"<-" is the more common convention R
+```{r basic language features, error = TRUE}
+x <- 1 + 1
+x
+```
+
 # Getting the dataset
 
 ### Short information about data set
@@ -147,69 +211,6 @@ Metadata:
 * Catch_Rate. Catch Rate.
 
 * Body_Style. Body Style of the Pokémon according to the Pokédex.
-
-# Basic Arithmetic and Logical Operations
-```{r basic_multiplication}
-# You can use R like a calculator
-1 + 5 # addition
-10 - 7 # subtraction
-10 * 10 # multiplcation
-90 / 9 # division
-11 ^ 2 # exponentiation
-
-abs(-10) # absolute value
-ceiling(2.75) # round up to next integer
-floor(3.25) # round down to next integer
-sqrt(100) # square roots
-exp(2) # exponents
-pi # mathematical constant pi
-exp(1) # mathematical constant e
-log(100) # natural logs (i.e., base e)
-log(100, base= 10) # base 10 logs
-
-
-# Use parentheses to clarify order of operations
-(1 + 1 ) * 2
-1 + (1 * 2)
-
-# You can test for equality
-# TRUE and FALSE are keywords
-# T and F are synonyms
-TRUE
-FALSE
-1 == 2 # Equality (Return TRUE if equal)
-1 != 2 # Inequality (Return FALSE if unequal)
-10 > 9 # Greater than
-9 < 10 # Less than
-10 <= 10 # Less than or equal
-2 %in% c(1, 2 ,3) # is the number in the vector
-!(5>1)
-result <- 4<5
-result2 <- !(5>1) #is not (TRUE)
-result | result2 # result 1 or result 2 (because one of them is TRUE)
-result & result2 # result 1 and result 2 (because one is not true)
-isTRUE(result2)
-
-# TRUE and FALSE coerces to 1 and 0 respectively
-as.numeric(TRUE)
-as.numeric(FALSE)
-
-# Logical converting to 0, 1 is useful
-x <- c(2, 5 ,7 ,10, 15)
-x > 5
-sum(x > 5)  # sum of a 0-1 variable is a count
-mean(x > 5) # mean of a 0-1 variable is a proportion
-
-```
-
-# Basic language features
-Assignment:
-To assign values to a variable either use "<-" or "="
-"<-" is the more common convention R
-```{r basic language features, error = TRUE}
-x <- 1 + 1
-x
-```
 
 ### Type of variables.
 
@@ -314,7 +315,8 @@ colnames(Pokemon) # but this also works
 ```{r, eval=FALSE}
 rownames(Pokemon) # rows can also have names
 ```
-#### Tip: 
+
+### Tip: 
 Avoid row names. Add another variable to the data.frame to store this information.
 
 
@@ -340,7 +342,7 @@ summary(Pokemon)
 describe(CrimeData$PctBornSameState)
 ```
 
-Function str in Basics R shows us structure of the dataset. We see that there are 23 variables and 721 observations. There is 10 character features and rest numerical. Summary statistics shows us 5 point statistics for numerical features. We can nicely visualise missing numbers by:
+Function str in Basic R shows us structure of the dataset. We see that there are 23 variables and 721 observations. There is 10 character features plus 13 numerical. Summary statistics shows us 5 point statistics for numerical features. We can nicely visualise missing numbers by:
 
 ```{r missing numbers visualisation}
 aggr_plot <- aggr(Pokemon, col=c('navyblue','red'), numbers=TRUE, sortVars=TRUE, labels=names(data), cex.axis=.5, gap=3, ylab=c("Histogram of missing data","Pattern"))
@@ -397,7 +399,7 @@ p3 +
         plot.title = element_text(colour = 'DarkGreen', size = 30)) # which corner of the text box you want to put in which corner of the grid box.
 ```
 
-### distribution
+### Distribution
 You can think of a 'density plot' as a "continuous histogram" of a variable, except the area under the density plot is equal to 1. 
 You should use a log scale to better visualise data that is heavily skewed.
 
@@ -496,7 +498,7 @@ theme(legend.position = "none" , axis.text.y = element_blank() , axis.ticks = el
 ### Line plots
 Works best when the relationship between two variables is relatively clean: each x value has a unique y value. When the data is not so cleanle related you'll want to use scatterplot instead
 
-### scatterplot
+### Scatterplot
 
 Scatterplots allows us to see relationship between features in the dataset. If one increases is the other one increasing/decreasing?
 
