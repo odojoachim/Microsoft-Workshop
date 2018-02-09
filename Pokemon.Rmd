@@ -56,6 +56,11 @@ install.packages("googleVis", dependencies = T)
 install.packages("ggplot2", dependencies = T)
 install.packages("scales", dependencies = T)
 install.packages("ggridges", dependencies = T)
+install.packages("plotrix", dependencies = T)
+install.packages("plotly", dependencies = T)
+install.packages("psych", dependencies = T)
+install.packages("corrgram", dependencies = T)
+install.packages("treemap", dependencies = T)
 ```
 
 ### Understanding directories
@@ -214,7 +219,7 @@ Metadata:
 
 ### Type of variables.
 
-There are different ypes of variables and they are important in selection of visualisation technique and decision of correct statistical modelling performed on the dataset. 
+There are different types of variables and they are important in selection of visualisation technique and decision of correct statistical modelling performed on the dataset. 
 
 ```{r type of variables}
 typeof(Pokemon$Name) # character variable
