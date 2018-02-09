@@ -344,7 +344,7 @@ ncol(Pokemon) # column count
 ```{r Basics statistics}
 str(Pokemon)
 summary(Pokemon)
-describe(CrimeData$PctBornSameState)
+describe(Pokemon$Total)
 ```
 
 Function str in Basic R shows us structure of the dataset. We see that there are 23 variables and 721 observations. There is 10 character features plus 13 numerical. Summary statistics shows us 5 point statistics for numerical features. We can nicely visualise missing numbers by:
@@ -367,10 +367,11 @@ A basic histogram bins a variable into fixed width buckets and returns the numbe
 The primary disadvantge of histograms is that you must decide ahead of time how wide the buckets are. 
 
 ```{r histogram basic}
+range(Pokemon$Total)
 hist(Pokemon$Total, binw = 20) # histogram
 ```
 
-It is so easy to do histogram using ggplot2 and the package allows to do much nicer and more colourful graphs as we will see. 
+It is so easy to do histogram using ggplot2 and the package allows you to do much nicer and more colourful graphs as we will see. 
 ```{r basic gghist}
 p3 <- ggplot(data=Pokemon, aes(x=Total))
 range(Pokemon$Total) # tip: always check range of the variable to estimate binwidth
@@ -445,7 +446,8 @@ We can also find that legendary pokemons have higher total skills than non-legen
 ggplot(Pokemon, aes(x = Total, y = Type_1, fill = isLegendary)) +
   geom_density_ridges() +
   theme_ridges() + 
-  theme(legend.position = c(-0.2,-0.1))
+  theme(legend.position = c(-0.2,-0.1)) + 
+  ggtitle("Density plots for Legendary and non-legendary Pokemons")
 ```
 
 ### Box plot
@@ -473,7 +475,17 @@ p5 + geom_boxplot(size = 1.1) + geom_point() # too pretty to be good
 But this is too nice to be good so we need to jiter this a little. 
 ```{r last touch}
 p5 + geom_boxplot(size = 1.3) + geom_jitter() # it's just randomly thrown points helping you too see the data better
-p5 + geom_jitter() + geom_boxplot(size = 1.3, alpha = 0.5) # boxplot on top and set up transparency
+p5 + geom_jitter() + geom_boxplot(size = 1.3, alpha = 0.5) + # boxplot on top and set up transparency
+  xlab('Type') + # add the x axis title
+  ylab('Density of Speed') + # add the y-axis title
+  ggtitle('Boxplots of speed for different types') + # add the title
+  theme(axis.title.x = element_text(colour = 'Red', size = 20), # change colour and size of x-axis title
+        axis.title.y = element_text(colour = 'Red', size = 20), # change colour and size of y-axis title
+        legend.title = element_text(size = 20), # change the size of title in the legend
+        legend.text = element_text(size=10), # change the size of content in the legend
+        legend.position = c(1,1), # according to: 0,0 = origin, 0,1 = on the y-axis where x=0, 1,0 = on the x-axis where y=0
+        legend.justification = c(1,1),
+        plot.title = element_text(colour = 'DarkBlue', size = 20)) # which corner of the text box you want to put in which corner of the grid box.
 ```
 
 However my favourite one would be using plotly. 
@@ -482,8 +494,72 @@ p <- plot_ly(Pokemon, y = ~Speed, color= ~Type_1, type = "box")
 p
 ```
 
+
+### Line plots
+Works best when the relationship between two variables is relatively clean: each x value has a unique y value. When the data is not so clean related you'll want to use scatterplot instead
+
+### Scatterplot
+
+Scatterplots allows us to see relationship between features in the dataset. If one increases is the other one increasing/decreasing? 
+
+```{r}
+plot(Pokemon$Total) # plot one variable only
+```
+
+The simplest one build with base r
+```{r scatterplot}
+par(mfrow=c(1,1)) # create a layout of graphic wondow, useful if you want to put more than one graph in one graphic window 
+plot(Pokemon$Total, Pokemon$Attack) # plot scatterplot for the variables
+```
+
+Very quickly we can obtain scatterplot showing relationship between different numerical variables in our dataset using psych library
+
+```{r}
+library(psych)
+pairs.panels(Pokemon[,c("Total", "HP", "Attack", "Defense", 'Speed')], 
+             density = TRUE,
+             ellipses = T, 
+             lm = T, 
+             method = 'spearman',
+             rug = F,
+             smoother = F)
+```
+
+Plotly produces nice plot as well. 
+```{r plotly}
+p <- plot_ly(
+  Pokemon, x = ~HP, y = ~Attack,
+  # Hover text:
+  text = ~paste("Attack: ", Attack, '<br>Generation:', Generation),
+  color = ~Generation, size = ~HP
+)
+p
+```
+
+Scatterplot have to shows relationship between variables. Corrolelogram shows how strong is the relationship. As stronger it is as stronger is the magnitude.
+```{r corrolelogram}
+library(corrgram)
+Num <- Pokemon[,c("Total", "HP", "Attack", "Defense", "Sp_Atk", "Sp_Def","Speed")]
+corrgram(Num, upper.panel=panel.pie, diag.panel = panel.density, lower.panel = panel.cor,main="Pokemon attributes",
+         col.regions = colorRampPalette(c("yellow", "blue", "red", "violet")))
+```
+We can produce bubble plot where ssize of the bubble depends on one variable, in this case total score, and we plot relationship between HP and Attack. 
+```{r bubble plot, results='asis', tidy=FALSE}
+Bubble <- gvisBubbleChart(Pokemon, idvar="Type_1", 
+                          xvar="HP", yvar="Attack",
+                          colorvar="Generation", sizevar="Total", 
+                          options = list(
+                            width=2000,
+                            height=1000,
+                            title = "Relationship between HP and Attack respecting Total"
+                          ))
+plot(Bubble)
+```
+
+
 ### Bar plot
-These total base stats include average health points
+
+These chart would be not recommended to use as it's not easy to read. We should generate eith pie chart or bar chart
 
 ```{r circular barplot}
 ggplot(Pokemon, aes(x = Type_1, y = HP ,fill = Type_1)) + 
@@ -499,53 +575,7 @@ geom_text(data = Pokemon, hjust = 1, size = 3, aes(x = Type_1, y = 0, label = Ty
 theme(legend.position = "none" , axis.text.y = element_blank() , axis.ticks = element_blank())
 ```
 
-
-### Line plots
-Works best when the relationship between two variables is relatively clean: each x value has a unique y value. When the data is not so cleanle related you'll want to use scatterplot instead
-
-### Scatterplot
-
-Scatterplots allows us to see relationship between features in the dataset. If one increases is the other one increasing/decreasing?
-
-```{r scatterplot}
-par(mfrow=c(1,1)) # create a layout of graphic wondow, useful if you want to put more than one graph in one graphic window 
-plot(Pokemon$Total, Pokemon$Attack) # plot scatterplot for the variables
-plot(Pokemon$Total) # plot one variable only
-library(psych)
-pairs.panels(Pokemon[,c("Total", "HP", "Attack", "Defense", 'Speed')], 
-             density = TRUE,
-             ellipses = T, 
-             lm = T, 
-             method = 'spearman',
-             rug = F,
-             smoother = F)
-```
-
-We can produce bubble plot where ssize of the bubble depends on one variable, in this case total score, and we plot relationship between HP and Attack. 
-```{r bubble plot, results='asis', tidy=FALSE}
-Bubble <- gvisBubbleChart(Pokemon, idvar="Type_1", 
-                          xvar="HP", yvar="Attack",
-                          colorvar="Generation", sizevar="Total", 
-                          options = list(
-                            width=2500,
-                            height=1500
-                          ))
-plot(Bubble)
-```
-
-Plotly produces nice plot as well. 
-```{r plotly}
-p <- plot_ly(
-  Pokemon, x = ~HP, y = ~Attack,
-  # Hover text:
-  text = ~paste("Attack: ", Attack, '<br>Generation:', Generation),
-  color = ~Generation, size = ~HP
-)
-p
-```
-
-### Bar chart 
-
+The simplest barchart using ggplot is not ordered but is showing number of different pokemons in each group type. 
 
 ```{r barplot horizontal }
 ggplot(data = Pokemon, aes(x=Type_1)) + # Plot bar chart as before
@@ -554,6 +584,7 @@ ggplot(data = Pokemon, aes(x=Type_1)) + # Plot bar chart as before
   theme(axis.text.y = element_text(size=rel(0.8))) #reduce the size of the y-axis tick labels 
 ```
 
+We can improve bar plot by ordering bars from max to minimum and colouring bars using blue colour
 ```{r improved}
 TypeSum <- table(Pokemon$Type_1) # aggregate the data by state of residence
 TypeOf <- as.data.frame(TypeSum) # convert to data frame
@@ -566,10 +597,13 @@ ggplot(TypeOf) +
            stat = 'identity',
            fill = 'blue') +
   coord_flip() +
-  theme(axis.text.y = element_text(size = rel(0.8)))
+  theme(axis.text.y = element_text(size = rel(0.8))) +
+  ggtitle("Number of Pokemons in each group")
 ```
 
 ### Pie chart
+
+Now we will explore Pie charts. The first simple one will show us different groups of pokemons
 ```{r Pie Chart, warning=FALSE}
 AttackSkills <- Pokemon[,c('Type_1' ,'Attack')]
 AttackSkills <- aggregate(AttackSkills, by = list(Type = AttackSkills$Type_1), FUN = 'mean')
@@ -580,14 +614,18 @@ lbls <- AttackSkills$Type
 pie3D(slices,labels=lbls,explode=0.1,
   	main="Pie Chart of Types")
 ```
+
+I personally prefer PieChart made using GoogleVis
 ```{r PieVis}
 Pie <- gvisPieChart(AttackSkills, options = list(
-  width=2500,
-  height=1500
+  width=2000,
+  height=1000,
+  title = "Pie chart of Attack for different type"
   ))
 plot(Pie)
 ```
 
+### A few other graphs with less statistical meaning but liked by employers
 All pokemons have a total sum of all the base stats (Health Points, Attack, Defense, Special Attack, Special Defense, and Speed) as a ranking. Those with the higest ranking are the strongest ones.
 ```{r ranking of total skills, warning=FALSE, eval=FALSE}
 TotalSkills <- Pokemon[,c('Type_1' ,'Total')]
@@ -603,7 +641,8 @@ Gauge <-  gvisGauge(TotalSkills,
                                  redFrom=365, 
                                  redTo=411,
                                  width = 1000,
-                                 height = 900))
+                                 height = 900,
+                                 title = "Dashboard for mean of total skills for different type"))
 plot(Gauge)
 ```
 
@@ -620,12 +659,7 @@ treemap(Pokemon, #Your data frame object
         fontsize.title = 14) #Change the font size of the title)
 ```
 
-```{r corrolelogram}
-library(corrgram)
-Num <- Pokemon[,c("Total", "HP", "Attack", "Defense", "Sp_Atk", "Sp_Def","Speed")]
-corrgram(Num, upper.panel=panel.pie, diag.panel = panel.density, lower.panel = panel.cor,main="Pokemon attributes",
-         col.regions = colorRampPalette(c("yellow", "blue", "red", "violet")))
-```
+
 # Exporting data 
 ```{r exporting data}
 
